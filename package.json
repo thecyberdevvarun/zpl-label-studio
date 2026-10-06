@@ -1,0 +1,16 @@
+{
+  "name": "qr-label-printer",
+  "version": "2.0.0",
+  "private": true,
+  "description": "QR label printing for ZPL network printers (React + Node.js)",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "build:exe": "npm run build && npm run build:exe --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

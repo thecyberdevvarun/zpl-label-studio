@@ -1,0 +1,7 @@
+node_modules
+client/dist
+dist
+.env
+# saved printers, templates and settings
+database/*.json
+database/*.tmp
