@@ -1,5 +1,5 @@
 {
-  "name": "qr-label-printer-client",
+  "name": "zpl-label-studio-client",
   "version": "2.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,8 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hot-toast": "^2.6.1",
-    "react-icons": "^5.7.0"
+    "react-icons": "^5.7.0",
+    "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

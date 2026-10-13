@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { getSettings, saveSettings } from '../api/databaseApi';
 import { DEFAULT_SETTINGS } from '../constants/defaults';
-import { toSavedLabel } from '../utils/label';
+import { toSavedLabel, upgradeLabel } from '../utils/label';
 
 const SAVE_DELAY_MS = 400;
 
@@ -12,7 +12,7 @@ const withDefaults = (data) => ({
     start: { ...DEFAULT_SETTINGS.serial.start, ...data?.serial?.start },
     end: { ...DEFAULT_SETTINGS.serial.end, ...data?.serial?.end },
   },
-  label: { ...DEFAULT_SETTINGS.label, ...data?.label },
+  label: { ...DEFAULT_SETTINGS.label, ...upgradeLabel(data?.label) },
 });
 
 // The current serial range + label settings, kept in database/settings.json.

@@ -15,7 +15,7 @@ export default function ZplModal({ open, onClose, zpl }) {
 
   return (
     <Modal open={open} onClose={onClose} title="ZPL for the first label" width="max-w-lg">
-      <pre className="whitespace-pre-wrap rounded-md border border-slate-300 bg-slate-100 p-4 font-mono text-xs leading-relaxed text-blue-700">
+      <pre className="whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-900 p-4 font-mono text-xs leading-relaxed text-emerald-300">
         {zpl}
       </pre>
       <div className="mt-4">

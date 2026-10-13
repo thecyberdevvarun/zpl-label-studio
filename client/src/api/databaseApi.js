@@ -20,3 +20,8 @@ export const markTemplatePrinted = (id, range) =>
 // Serial range + label settings
 export const getSettings = () => request('/settings');
 export const saveSettings = (settings) => request('/settings', { method: 'PUT', body: settings });
+
+// Print history (finished jobs, newest first)
+export const getHistory = () => request('/history');
+export const addHistoryEntry = (entry) => request('/history', { method: 'POST', body: entry });
+export const clearHistory = () => request('/history', { method: 'DELETE' });

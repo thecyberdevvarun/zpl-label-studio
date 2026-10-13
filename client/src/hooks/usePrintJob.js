@@ -21,7 +21,9 @@ export default function usePrintJob() {
     async ({ printer, serials, label, batchDelay }) => {
       stopRequested.current = false;
       setState({ status: 'running', total: serials.length, printed: 0, errors: 0 });
-      addLog('info', 'JOB', `Started — ${serials.length} label${serials.length > 1 ? 's' : ''} on ${printer.name}`);
+      const copies = label.copies || 1;
+      const labelsText = (n) => `${n} label${n === 1 ? '' : 's'}`;
+      addLog('info', 'JOB', `Started — ${labelsText(serials.length * copies)} on ${printer.name}`);
 
       let printed = 0;
       let errors = 0;
@@ -40,7 +42,7 @@ export default function usePrintJob() {
           printed++;
           lastSerial = serial;
           setState((s) => ({ ...s, printed }));
-          addLog('success', 'OK', 'Sent to printer', serial);
+          addLog('success', 'OK', label.copies > 1 ? `Sent to printer (${label.copies} copies)` : 'Sent to printer', serial);
         } catch (err) {
           errors++;
           setState((s) => ({ ...s, errors }));
@@ -52,7 +54,7 @@ export default function usePrintJob() {
 
       const status = errors ? 'failed' : stopped ? 'stopped' : 'done';
       setState((s) => ({ ...s, status }));
-      if (status === 'done') addLog('info', 'DONE', `Finished — ${printed} label${printed > 1 ? 's' : ''} printed`);
+      if (status === 'done') addLog('info', 'DONE', `Finished — ${labelsText(printed * copies)} printed`);
       return { status, printed, errors, lastSerial };
     },
     [addLog],

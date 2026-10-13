@@ -5,23 +5,13 @@ import usePrinterStatus from '../hooks/usePrinterStatus';
 const PrinterContext = createContext(null);
 
 // Holds the saved printers, which one is selected, and its live status —
-// shared by the header, the printer manager and the print page.
+// shared by the sidebar, top bar and every page.
 export function PrinterProvider({ children }) {
   const store = usePrinters();
   const [pollingPaused, setPollingPaused] = useState(false);
   const status = usePrinterStatus(store.selected, pollingPaused);
-  const [managerOpen, setManagerOpen] = useState(false);
 
-  const value = {
-    ...store,
-    ...status,
-    setPollingPaused,
-    managerOpen,
-    openManager: () => setManagerOpen(true),
-    closeManager: () => setManagerOpen(false),
-  };
-
-  return <PrinterContext.Provider value={value}>{children}</PrinterContext.Provider>;
+  return <PrinterContext.Provider value={{ ...store, ...status, setPollingPaused }}>{children}</PrinterContext.Provider>;
 }
 
 export function usePrinterContext() {

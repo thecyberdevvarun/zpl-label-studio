@@ -1,22 +1,40 @@
 const HttpError = require('./HttpError');
+const { CODE_TYPES } = require('../services/code.service');
 
 const HOST_RE = /^[a-zA-Z0-9]([a-zA-Z0-9.-]{0,251}[a-zA-Z0-9])?$/;
 // ^ and ~ are ZPL control characters, so they cannot appear in label data.
 const SERIAL_RE = /^[^\^~\u0000-\u001F\u007F]{1,100}$/;
 const TEXT_POSITIONS = ['top', 'bottom', 'left', 'right'];
+const ALIGNMENTS = ['left', 'center', 'right'];
 
 // Allowed range for each numeric label setting: [min, max]
 const LABEL_LIMITS = {
-  labelWidth: [100, 2000],
-  labelHeight: [100, 2000],
+  labelWidth: [20, 9999], // dots (^PW max)
+  labelHeight: [20, 32000], // dots (^LL max)
   qrSize: [1, 10],
-  marginLeft: [0, 2000],
-  marginTop: [0, 2000],
+  marginLeft: [0, 9999],
+  marginTop: [0, 9999],
   fontSize: [10, 200],
   textGap: [0, 500],
+  barWidth: [1, 10],
+  barHeight: [20, 500],
+  customFontSize: [10, 200],
   copies: [1, 100],
 };
+const CUSTOM_TEXT_MAX = 60;
+// Custom text: standard keyboard characters, minus the ZPL control characters ^ ~ and \
+const CUSTOM_TEXT_OK = /^[\x20-\x7E]*$/;
+const CUSTOM_TEXT_FORBIDDEN = /[\^~\\]/;
 const BATCH_DELAY_LIMITS = [0, 5000];
+
+// The label's physical size is saved in millimetres (or shown in inches); the client
+// converts it to dots using the selected printer's resolution before printing.
+const LABEL_SIZE_MM_LIMITS = [10, 1000];
+const SIZE_UNITS = ['mm', 'in'];
+
+// Print resolution of a saved printer, in dots per inch.
+const DPI_LIMITS = [100, 1200];
+const DEFAULT_DPI = 203;
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -26,6 +44,14 @@ function parseInteger(value, key, [min, max]) {
     throw new HttpError(400, `${key} must be a whole number between ${min} and ${max}.`);
   }
   return n;
+}
+
+function parseDecimal(value, key, [min, max]) {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (value === '' || value === null || !Number.isFinite(n) || n < min || n > max) {
+    throw new HttpError(400, `${key} must be a number between ${min} and ${max}.`);
+  }
+  return Math.round(n * 100) / 100;
 }
 
 function parsePrinter(input) {
@@ -44,11 +70,13 @@ function parsePrinter(input) {
   return { host, port };
 }
 
-// A printer to save: address + a display name (defaults to the address).
+// A printer to save: address + a display name (defaults to the address) + print resolution.
 function parsePrinterRecord(input) {
   const { host, port } = parsePrinter(input);
   const name = String(input.name ?? '').trim().slice(0, 100) || host;
-  return { name, host, port };
+  const dpiInput = input.dpi === undefined || input.dpi === '' ? DEFAULT_DPI : input.dpi;
+  const dpi = parseInteger(dpiInput, 'dpi', DPI_LIMITS);
+  return { name, host, port, dpi };
 }
 
 function parseSerial(value) {
@@ -70,18 +98,53 @@ function parseLabelConfig(input) {
   for (const [key, limits] of Object.entries(LABEL_LIMITS)) {
     if (input[key] !== undefined) config[key] = parseInteger(input[key], key, limits);
   }
-  if (input.textPosition !== undefined) {
-    if (!TEXT_POSITIONS.includes(input.textPosition)) {
-      throw new HttpError(400, `textPosition must be one of: ${TEXT_POSITIONS.join(', ')}.`);
+  for (const key of ['textPosition', 'customTextPosition']) {
+    if (input[key] === undefined) continue;
+    if (!TEXT_POSITIONS.includes(input[key])) {
+      throw new HttpError(400, `${key} must be one of: ${TEXT_POSITIONS.join(', ')}.`);
     }
-    config.textPosition = input.textPosition;
+    config[key] = input[key];
+  }
+  if (input.align !== undefined) {
+    if (!ALIGNMENTS.includes(input.align)) {
+      throw new HttpError(400, `align must be one of: ${ALIGNMENTS.join(', ')}.`);
+    }
+    config.align = input.align;
+  }
+  if (input.codeType !== undefined) {
+    if (!CODE_TYPES.includes(input.codeType)) {
+      throw new HttpError(400, `codeType must be one of: ${CODE_TYPES.join(', ')}.`);
+    }
+    config.codeType = input.codeType;
+  }
+  if (input.customText !== undefined) {
+    const text = typeof input.customText === 'string' ? input.customText.trim() : null;
+    if (text === null || text.length > CUSTOM_TEXT_MAX) {
+      throw new HttpError(400, `Custom text must be up to ${CUSTOM_TEXT_MAX} characters.`);
+    }
+    if (!CUSTOM_TEXT_OK.test(text) || CUSTOM_TEXT_FORBIDDEN.test(text)) {
+      throw new HttpError(400, 'Custom text can only use letters, numbers and common symbols (not ^ ~ or \\).');
+    }
+    config.customText = text;
   }
   return config;
 }
 
-// Label settings as stored in the database: print settings + the delay between labels.
+// Label settings as stored in the database: print settings + the delay between labels
+// + the label's physical size and the unit it is shown in.
 function parseSavedLabel(input) {
   const label = parseLabelConfig(input);
+  if (isObject(input)) {
+    for (const key of ['labelWidthMm', 'labelHeightMm']) {
+      if (input[key] !== undefined) label[key] = parseDecimal(input[key], key, LABEL_SIZE_MM_LIMITS);
+    }
+    if (input.sizeUnit !== undefined) {
+      if (!SIZE_UNITS.includes(input.sizeUnit)) {
+        throw new HttpError(400, `sizeUnit must be one of: ${SIZE_UNITS.join(', ')}.`);
+      }
+      label.sizeUnit = input.sizeUnit;
+    }
+  }
   if (isObject(input) && input.batchDelay !== undefined) {
     label.batchDelay = parseInteger(input.batchDelay, 'batchDelay', BATCH_DELAY_LIMITS);
   }
@@ -141,6 +204,32 @@ function parseSettings(input) {
   };
 }
 
+const JOB_STATUSES = ['done', 'stopped', 'failed'];
+
+// One finished print job, for the history page and dashboard. The time is added by the server.
+function parseHistoryEntry(input) {
+  if (!isObject(input)) throw new HttpError(400, 'A history entry is required.');
+  const text = (value, field, max) => {
+    const v = value === undefined || value === null ? '' : value;
+    if (typeof v !== 'string' || v.length > max) throw new HttpError(400, `${field} must be text of up to ${max} characters.`);
+    return v;
+  };
+  const labels = Number(input.labels);
+  if (!Number.isInteger(labels) || labels < 0 || labels > 1000000) {
+    throw new HttpError(400, 'labels must be a whole number between 0 and 1000000.');
+  }
+  if (!JOB_STATUSES.includes(input.status)) throw new HttpError(400, `status must be one of: ${JOB_STATUSES.join(', ')}.`);
+  if (!CODE_TYPES.includes(input.type)) throw new HttpError(400, `type must be one of: ${CODE_TYPES.join(', ')}.`);
+  return {
+    printer: text(input.printer, 'printer', 100),
+    type: input.type,
+    summary: text(input.summary, 'summary', 200),
+    labels,
+    status: input.status,
+    template: text(input.template, 'template', 100),
+  };
+}
+
 function parseId(value) {
   if (typeof value !== 'string' || !value || value.length > 100) throw new HttpError(400, 'A valid id is required.');
   return value;
@@ -154,5 +243,6 @@ module.exports = {
   parseTemplate,
   parsePrintedRange,
   parseSettings,
+  parseHistoryEntry,
   parseId,
 };

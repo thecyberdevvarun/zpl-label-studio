@@ -3,11 +3,15 @@ import { previewZpl } from '../api/printApi';
 
 // Asks the server for the ZPL and layout of one label. The server is the single
 // source of truth, so the preview always matches what gets printed.
-export default function useLabelPreview(serial, label) {
+export default function useLabelPreview(serial, label, enabled = true) {
   const [state, setState] = useState({ zpl: '', layout: null, error: '', loading: true });
-  const key = JSON.stringify([serial, label]);
+  const key = JSON.stringify([serial, label, enabled]);
 
   useEffect(() => {
+    if (!enabled) {
+      setState((s) => ({ ...s, loading: false, error: '' }));
+      return undefined;
+    }
     let cancelled = false;
     setState((s) => ({ ...s, loading: true }));
     const timer = setTimeout(() => {

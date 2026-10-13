@@ -9,11 +9,11 @@ export default function SerialPartsInput({ label, value, onChange }) {
 
   return (
     <fieldset>
-      <legend className="mb-1.5 font-mono text-xs font-medium text-slate-600">{label}</legend>
+      <legend className="mb-1.5 text-sm font-medium text-slate-700">{label}</legend>
       <div className="grid grid-cols-3 gap-2.5">
-        <TextInput className="h-11" aria-label={`${label} prefix`} placeholder="Prefix" value={value.prefix} onChange={set('prefix')} />
-        <TextInput className="h-11" aria-label={`${label} number`} placeholder="000001" inputMode="numeric" value={value.number} onChange={set('number')} />
-        <TextInput className="h-11" aria-label={`${label} suffix`} placeholder="Suffix" value={value.suffix} onChange={set('suffix')} />
+        <TextInput className="font-mono" aria-label={`${label} prefix`} placeholder="Prefix" value={value.prefix} onChange={set('prefix')} />
+        <TextInput className="font-mono" aria-label={`${label} number`} placeholder="000001" inputMode="numeric" value={value.number} onChange={set('number')} />
+        <TextInput className="font-mono" aria-label={`${label} suffix`} placeholder="Suffix" value={value.suffix} onChange={set('suffix')} />
       </div>
     </fieldset>
   );

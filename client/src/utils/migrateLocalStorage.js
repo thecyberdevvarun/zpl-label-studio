@@ -1,5 +1,5 @@
 import * as db from '../api/databaseApi';
-import { toSavedLabel } from './label';
+import { toSavedLabel, upgradeLabel } from './label';
 
 const KEYS = ['qrlp.printers', 'qrlp.selectedPrinterId', 'qrlp.templates', 'qrlp.serial', 'qrlp.settings'];
 
@@ -14,7 +14,7 @@ const read = (key) => {
 
 // The previous version kept the QR position in qrX/qrY; it is now the group's margin.
 const convertLabel = (old = {}) =>
-  toSavedLabel({ ...old, marginLeft: old.qrX, marginTop: old.qrY });
+  toSavedLabel({ ...upgradeLabel(old), marginLeft: old.qrX, marginTop: old.qrY });
 
 // Moves printers, templates and settings that an earlier version saved in this
 // browser into the server's database folder, then clears them from the browser.
