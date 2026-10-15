@@ -198,3 +198,126 @@ On the CL4NX Plus set the language to **ZPL** (or SBPL with ZPL emulation).
 - To add another barcode type later (EAN-13, Data Matrix, ...): add it to `server/src/services/code.service.js` and give it a ZPL command in `zpl.service.js`.
 - No login: run it on a trusted network. Anyone who can open the app can print
   to any address the server can reach and change the saved data.
+<<<<<<< HEAD
+=======
+
+```
+zpl-label-studio
+├─ client
+│  ├─ index.html
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ src
+│  │  ├─ api
+│  │  │  ├─ databaseApi.js
+│  │  │  ├─ http.js
+│  │  │  └─ printApi.js
+│  │  ├─ App.jsx
+│  │  ├─ components
+│  │  │  ├─ history
+│  │  │  │  └─ JobsTable.jsx
+│  │  │  ├─ label
+│  │  │  │  ├─ ContentSettings.jsx
+│  │  │  │  ├─ LabelPreview.jsx
+│  │  │  │  ├─ LayoutSettings.jsx
+│  │  │  │  ├─ SizeSettings.jsx
+│  │  │  │  └─ ZplModal.jsx
+│  │  │  ├─ layout
+│  │  │  │  ├─ AppShell.jsx
+│  │  │  │  ├─ Footer.jsx
+│  │  │  │  ├─ PrinterSelector.jsx
+│  │  │  │  ├─ Sidebar.jsx
+│  │  │  │  ├─ StatusDot.jsx
+│  │  │  │  ├─ StatusScreen.jsx
+│  │  │  │  └─ TopBar.jsx
+│  │  │  ├─ print
+│  │  │  │  └─ PrintMonitor.jsx
+│  │  │  ├─ printers
+│  │  │  │  └─ PrinterFormModal.jsx
+│  │  │  ├─ serial
+│  │  │  │  ├─ SerialPartsInput.jsx
+│  │  │  │  ├─ SerialRangeForm.jsx
+│  │  │  │  └─ TemplateManager.jsx
+│  │  │  └─ ui
+│  │  │     ├─ Badge.jsx
+│  │  │     ├─ Button.jsx
+│  │  │     ├─ Card.jsx
+│  │  │     ├─ EmptyState.jsx
+│  │  │     ├─ Field.jsx
+│  │  │     ├─ Modal.jsx
+│  │  │     └─ SegmentedControl.jsx
+│  │  ├─ constants
+│  │  │  └─ defaults.js
+│  │  ├─ context
+│  │  │  ├─ PrinterContext.jsx
+│  │  │  └─ StudioContext.jsx
+│  │  ├─ hooks
+│  │  │  ├─ useHistory.js
+│  │  │  ├─ useLabelPreview.js
+│  │  │  ├─ usePrinters.js
+│  │  │  ├─ usePrinterStatus.js
+│  │  │  ├─ usePrintJob.js
+│  │  │  ├─ useSettings.js
+│  │  │  └─ useTemplates.js
+│  │  ├─ index.css
+│  │  ├─ main.jsx
+│  │  ├─ pages
+│  │  │  ├─ DashboardPage.jsx
+│  │  │  ├─ HistoryPage.jsx
+│  │  │  ├─ NotFoundPage.jsx
+│  │  │  ├─ PrintersPage.jsx
+│  │  │  ├─ PrintPage.jsx
+│  │  │  └─ TemplatesPage.jsx
+│  │  └─ utils
+│  │     ├─ format.js
+│  │     ├─ id.js
+│  │     ├─ label.js
+│  │     ├─ labelIssues.js
+│  │     ├─ migrateLocalStorage.js
+│  │     ├─ printerAddress.js
+│  │     └─ serial.js
+│  └─ vite.config.js
+├─ database
+├─ package.json
+├─ README.md
+└─ server
+   ├─ package-lock.json
+   ├─ package.json
+   └─ src
+      ├─ app.js
+      ├─ config
+      │  └─ index.js
+      ├─ controllers
+      │  ├─ history.controller.js
+      │  ├─ print.controller.js
+      │  ├─ printer.controller.js
+      │  ├─ settings.controller.js
+      │  └─ template.controller.js
+      ├─ index.js
+      ├─ middleware
+      │  └─ errorHandler.js
+      ├─ repositories
+      │  ├─ history.repository.js
+      │  ├─ printers.repository.js
+      │  ├─ settings.repository.js
+      │  └─ templates.repository.js
+      ├─ routes
+      │  ├─ history.routes.js
+      │  ├─ index.js
+      │  ├─ print.routes.js
+      │  ├─ printer.routes.js
+      │  ├─ settings.routes.js
+      │  └─ template.routes.js
+      ├─ services
+      │  ├─ code.service.js
+      │  ├─ database.service.js
+      │  ├─ layout.service.js
+      │  ├─ printer.service.js
+      │  ├─ qr.service.js
+      │  └─ zpl.service.js
+      └─ utils
+         ├─ HttpError.js
+         └─ validators.js
+
+```
+>>>>>>> 650b84d (Change the application layout inplement the dashbaord layout and folder structure as database to store the data and history)
