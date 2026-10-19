@@ -3,14 +3,19 @@
   "version": "2.0.0",
   "private": true,
   "description": "Print QR code and barcode labels with serial numbers to ZPL network printers (React + Node.js)",
+  "main": "Backend/server.js",
   "scripts": {
-    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
-    "dev": "concurrently -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "build": "npm run build --prefix client",
-    "start": "npm run start --prefix server",
-    "build:exe": "npm run build && npm run build:exe --prefix server"
+    "dev": "nodemon Backend/server.js",
+    "start": "node Backend/server.js",
+    "build": "npm install && npm install --prefix Frontend && npm run build --prefix Frontend"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsbarcode": "^3.12.3",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "nodemon": "^3.1.0"
   }
 }

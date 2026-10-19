@@ -22,8 +22,9 @@ Node.js/Express back end.
 ## Quick start
 
 ```bash
-npm run install:all   # installs root, server and client dependencies
-npm run dev           # server on :3001, React dev server on http://localhost:5173
+npm run build         # installs all dependencies and builds the React app
+npm run dev                      # API on :3001 (nodemon)
+npm run dev --prefix Frontend    # React dev server on http://localhost:5173 (second terminal)
 ```
 
 Open http://localhost:5173, click **Add a printer**, enter its IP address
@@ -36,19 +37,12 @@ port). If something can't work, the message says exactly what is wrong.
 ### Production (one process)
 
 ```bash
-npm run build         # builds the React app into client/dist
+npm run build         # builds the React app into Frontend/dist
 npm start             # serves the app + API on http://localhost:3001
 ```
 
 Change the port with `PORT=8080 npm start`.
 
-### Single Windows .exe
-
-```bash
-npm run build:exe     # writes dist/zpl-label-studio.exe
-```
-
-The exe creates its `database` folder next to itself.
 
 ## The pages
 
@@ -133,10 +127,11 @@ uses to build the ZPL.
 QR-Label-Printer/
 ├── package.json              scripts that run both apps
 ├── database/                 saved printers, templates, settings (JSON)
-├── server/                   Node.js + Express API
+├── Backend/                   Node.js + Express API
 │   └── src/
-│       ├── index.js          starts the server
-│       ├── app.js            express setup, serves client/dist in production
+│   ├── server.js         starts the server (entry point)
+│       ├── app.js            express setup, serves Frontend/dist in production
+│       ├── app.js            express setup, serves Frontend/dist in production
 │       ├── config/           PORT, database folder, socket timeouts
 │       ├── routes/           URL → controller
 │       ├── controllers/      request handling
@@ -150,7 +145,7 @@ QR-Label-Printer/
 │       │   └── printer.service.js   TCP connection to the printer
 │       ├── middleware/       error handling
 │       └── utils/            input validation, HttpError
-└── client/                   React + Vite + Tailwind CSS
+└── Frontend/                   React + Vite + Tailwind CSS
     └── src/
         ├── api/              fetch wrapper, print API, database API
         ├── components/       layout (sidebar, top bar, footer), printers, serial, label,
@@ -195,7 +190,7 @@ On the CL4NX Plus set the language to **ZPL** (or SBPL with ZPL emulation).
 ## Notes
 
 - Max 500 labels per batch. Serials cannot contain `^` or `~` (ZPL control characters).
-- To add another barcode type later (EAN-13, Data Matrix, ...): add it to `server/src/services/code.service.js` and give it a ZPL command in `zpl.service.js`.
+- To add another barcode type later (EAN-13, Data Matrix, ...): add it to `Backend/src/services/code.service.js` and give it a ZPL command in `zpl.service.js`.
 - No login: run it on a trusted network. Anyone who can open the app can print
   to any address the server can reach and change the saved data.
 <<<<<<< HEAD
@@ -203,7 +198,7 @@ On the CL4NX Plus set the language to **ZPL** (or SBPL with ZPL emulation).
 
 ```
 zpl-label-studio
-├─ client
+├─ Frontend
 │  ├─ index.html
 │  ├─ package-lock.json
 │  ├─ package.json
@@ -280,7 +275,7 @@ zpl-label-studio
 ├─ database
 ├─ package.json
 ├─ README.md
-└─ server
+└─ Backend
    ├─ package-lock.json
    ├─ package.json
    └─ src
